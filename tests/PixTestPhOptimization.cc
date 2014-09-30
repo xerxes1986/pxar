@@ -170,16 +170,31 @@ void PixTestPhOptimization::doTest() {
   }
   
 
+
+  LOG(logDEBUG)<<"minpixels vector has size "<<minpixels.size();
   std::vector<pair<uint8_t, int> > minthrs;
-  for(std::vector<pxar::pixel>::iterator thrit = thrmap.begin(); thrit != thrmap.end(); thrit++){
-    for(std::vector<std::pair<int, pxar::pixel> >::iterator minp_it = minpixels.begin(); minp_it != minpixels.end(); minp_it++){
-      if(thrit->column() == minp_it->second.column() && thrit->row() == minp_it->second.row() && thrit->roc()==minp_it->first){
-	minthr=static_cast<int>(thrit->value());
-	minthrs.push_back(make_pair(thrit->roc(), minthr));
-      }
-    }
+  LOG(logDEBUG)<<"thrmap has size "<<thrmap.size();
+//  for(std::vector<pxar::pixel>::iterator thrit = thrmap.begin(); thrit != thrmap.end(); thrit++){
+//    LOG(logDEBUG)<<"thrmap: "<<(int)thrit->roc()<<" "<<(int)thrit->column()<<" "<<(int)thrit->row()<<" "<<(int)thrit->value();
+//  }
+//
+//  for(std::vector<std::pair<int, pxar::pixel> >::iterator minp_it = minpixels.begin(); minp_it != minpixels.end(); minp_it++){
+//    LOG(logDEBUG)<<"minpixels: "<<(int)minp_it->first<<" "<<(int) minp_it->second.column()<<" "<<(int)minp_it->second.row()<<" "<<(int)minp_it->second.value(); 
+//  }
+
+
+  for(std::vector<std::pair<int, pxar::pixel> >::iterator minp_it = minpixels.begin(); minp_it != minpixels.end(); minp_it++){
+    minthr=static_cast<int>(minp_it->second.value());
+    minthrs.push_back(make_pair(minp_it->second.roc(), minthr));
   }
+
   
+  LOG(logDEBUG)<<"minthresholds vector has size "<<minthrs.size();
+  for( std::vector<pair<uint8_t, int> >::iterator thr_it = minthrs.begin(); thr_it != minthrs.end(); thr_it++){
+    LOG(logDEBUG)<<"its elements are "<<thr_it->first<<","<<thr_it->second;
+  }
+
+
   fApi->_dut->testAllPixels(false);
   fApi->_dut->maskAllPixels(true);
   for(std::vector<std::pair<int, pxar::pixel> >::iterator maxp_it = maxpixels.begin(); maxp_it != maxpixels.end(); maxp_it++){
@@ -660,11 +675,11 @@ map<uint8_t, int> PixTestPhOptimization::InsideRangePH(map<uint8_t,int> po_opt, 
 	  lowEd = (minPh > safetyMargin);
 	  upEd = (maxPh < 255 - safetyMargin);
 	  upEd_dist = abs(maxPh - (255 - safetyMargin));
-	  LOG(logDEBUG) << "upEd_dist is "<<upEd_dist<<" for po "<<(int)dacit_max->first<<" "<<(int)dacit_min->first<<" and ps "<<(int)dacit_max->second.first<<" "<<(int)dacit_min->second.first;
+	  //	  LOG(logDEBUG) << "upEd_dist is "<<upEd_dist<<" for po "<<(int)dacit_max->first<<" "<<(int)dacit_min->first<<" and ps "<<(int)dacit_max->second.first<<" "<<(int)dacit_min->second.first;
 	  lowEd_dist = abs(minPh - safetyMargin);
-	  LOG(logDEBUG) << "lowEd_dist is "<<lowEd_dist<<" for po "<<(int)dacit_max->first<<" "<<(int)dacit_min->first<<" and ps "<<(int)dacit_max->second.first<<" "<<(int)dacit_min->second.first;
+	  //	  LOG(logDEBUG) << "lowEd_dist is "<<lowEd_dist<<" for po "<<(int)dacit_max->first<<" "<<(int)dacit_min->first<<" and ps "<<(int)dacit_max->second.first<<" "<<(int)dacit_min->second.first;
 	  dist = (upEd_dist > lowEd_dist ) ? (upEd_dist) : (lowEd_dist);
-	  LOG(logDEBUG) << "dist is "<<dist<<" for po "<<(int)dacit_max->first<<" "<<(int)dacit_min->first<<" and ps "<<(int)dacit_max->second.first<<" "<<(int)dacit_min->second.first;
+	  //	  LOG(logDEBUG) << "dist is "<<dist<<" for po "<<(int)dacit_max->first<<" "<<(int)dacit_min->first<<" and ps "<<(int)dacit_max->second.first<<" "<<(int)dacit_min->second.first;
 	  if(dist < bestDist[dacit_max->second.second[pix].roc()] && upEd && lowEd){
 	    ps_opt[dacit_max->second.second[pix].roc()] = dacit_max->second.first;
 	    bestDist[dacit_max->second.second[pix].roc()]=dist;
